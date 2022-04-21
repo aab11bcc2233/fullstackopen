@@ -1,0 +1,12 @@
+actor user
+
+user->browser: Typing 'Hah'
+user->browser: click button 'SUBMIT'
+
+note over browser: redraw notes (append new note)
+note over browser: send new note to server
+
+browser->+server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa \n request body: {"content":"Hah","date":"2022-04-21"}
+note over server: save new note \n (note=Hah)
+server-->-browser: Response status code 201 \nbody: {"message":"note created"}
+
