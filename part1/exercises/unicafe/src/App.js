@@ -11,6 +11,14 @@ const Statistics = (props) => {
   console.log('Statistics props', props)
   const { good, neutral, bad } = props
 
+  if (good === 0 && neutral === 0 && bad === 0) {
+    return (
+      <div>
+        No feedback given
+      </div>
+    )
+  }
+
   const calcAll = () => good + neutral + bad
 
   const calcAverage = () => {
