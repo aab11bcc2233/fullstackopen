@@ -10,7 +10,12 @@ const Button = (props) => {
 const StatisticLine = (props) => {
   const { text, value } = props
 
-  return (<div>{text} {value}</div>)
+  return (
+    <tr>
+      <td>{text}</td>
+      <td>{value}</td>
+    </tr>
+  )
 }
 
 const Statistics = (props) => {
@@ -44,22 +49,24 @@ const Statistics = (props) => {
     return good / all * 100.0
   }
 
-  console.log('good counter', good)
-  console.log('neutral counter', neutral)
-  console.log('bad counter', bad)
-  console.log('all', calcAll())
-  console.log('average', calcAverage())
-  console.log('positive', calcPostivie(), "%")
+  // console.log('good counter', good)
+  // console.log('neutral counter', neutral)
+  // console.log('bad counter', bad)
+  // console.log('all', calcAll())
+  // console.log('average', calcAverage())
+  // console.log('positive', calcPostivie(), "%")
 
   return (
-    <div>
-      <StatisticLine text='good' value={good} />
-      <StatisticLine text='neutral' value={neutral} />
-      <StatisticLine text='bad' value={bad} />
-      <StatisticLine text='all' value={calcAll()} />
-      <StatisticLine text='average' value={calcAverage()} />
-      <StatisticLine text='positive' value={calcPostivie() + " %"} />
-    </div>
+    <table>
+      <tbody>
+        <StatisticLine text='good' value={good} />
+        <StatisticLine text='neutral' value={neutral} />
+        <StatisticLine text='bad' value={bad} />
+        <StatisticLine text='all' value={calcAll()} />
+        <StatisticLine text='average' value={calcAverage()} />
+        <StatisticLine text='positive' value={calcPostivie() + " %"} />
+      </tbody>
+    </table>
   )
 }
 
