@@ -3,11 +3,9 @@ import React from "react"
 
 const Total = ({ parts }) => {
 
-    let total = 0
-    for (let i = 0; i < parts.length; i++) {
-         const part = parts[i];
-         total += part.exercises
-    }
+    const total = parts
+        .map(part => part.exercises)
+        .reduce((s, p) => s + p)
 
     return (
         <div>
