@@ -1,8 +1,34 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
+const CountryItem = ({ index, country, clickShowCountry}) => {
+  return (
+    <div>
+      {country.name.common} <button onClick={() => clickShowCountry(index)}>show</button>
+    </div>
+  )
+}
 
-const SearchResult = ({ countries }) => {
+const Country = ({ country }) => {
+  return (
+    <div>
+      <h2>{country.name.common}</h2>
+      <div>capital {country.capital.join(', ')}</div>
+      <div>population {country.population}</div>
+
+      <h2>languages</h2>
+      <div>
+        <ul>
+          {Object.entries(country.languages).map(entry => <li key={entry[0]}>{entry[1]}</li>)}
+        </ul>
+      </div>
+      <img src={country.flags.png} alt='flag' />
+    </div>
+  )
+}
+
+
+const SearchResult = ({ countries, clickShowCountry }) => {
   if (countries.length === 0) {
     return (<></>)
   }
@@ -13,26 +39,21 @@ const SearchResult = ({ countries }) => {
 
   if (countries.length === 1) {
     const country = countries[0]
-    return (
-      <div>
-        <h2>{country.name.common}</h2>
-        <div>capital {country.capital.join(', ')}</div>
-        <div>population {country.population}</div>
-
-        <h2>languages</h2>
-        <div>
-          <ul>
-            {Object.entries(country.languages).map(entry => <li key={entry[0]}>{entry[1]}</li>)}
-          </ul>
-        </div>
-        <img src={country.flags.png} alt='flag' />
-      </div>
-    )
+    return <Country country={country} />
   }
 
   return (
     <div>
-      {countries.map((country) => <div key={country.cca2}>{country.name.common}</div>)}
+      {
+        countries.map((country, index) =>
+          <CountryItem
+            key={country.cca2}
+            index={index}
+            country={country}
+            clickShowCountry={clickShowCountry}
+          />
+        )
+      }
     </div>
   )
 }
@@ -42,6 +63,7 @@ function App() {
   const [searchText, setSearchText] = useState('')
   const [countries, setCountries] = useState([])
   const [searchResults, setSearchResults] = useState([])
+  const [showIndex, setShowIndex] = useState(-1)
 
   useEffect(
     () => {
@@ -57,7 +79,8 @@ function App() {
   const onInputSearchText = (event) => {
     const text = event.target.value
     setSearchText(text)
-
+    setShowIndex(-1)
+    
     if (text === '') {
       setSearchResults([])
     } else {
@@ -67,6 +90,9 @@ function App() {
     }
   }
 
+  const clickShowCountry = (index) => {
+    setShowIndex(index)
+  }
 
   return (
     <div>
@@ -74,7 +100,8 @@ function App() {
         find countries <input value={searchText} onChange={onInputSearchText} />
       </div>
 
-      <SearchResult countries={searchResults} />
+      { showIndex > -1 ? <Country country={searchResults[showIndex]} /> : <SearchResult countries={searchResults} clickShowCountry={clickShowCountry} />}
+      
     </div>
   );
 }
