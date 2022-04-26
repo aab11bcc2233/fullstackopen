@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Filter from './componets/Filter'
 import PersonForm from './componets/PersonForm'
 import Persons from './componets/Persons'
-import axios from 'axios'
+import apiService from './services/Persons'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -13,10 +13,10 @@ const App = () => {
 
   useEffect(
     () => {
-      axios.get("http://localhost:3001/persons")
-        .then((response) => {
-            const data = response.data
-            setPersons(data)
+      apiService.getPersons()
+        .then(data => setPersons(data))
+        .catch(err => {
+          console.log('getPersons err: ', err)
         })
     },
     []
@@ -46,18 +46,66 @@ const App = () => {
     event.preventDefault()
     if (newName !== '' && newNumber !== '') {
 
-      if (persons.some(person => person.name === newName)) {
-        alert(`${newName} is already added to phonebook`)
+      const existPerson = persons.find(v => v.name === newName)
+      if (existPerson) {
+        const existStr = `${newName} is already added to phonebook`
+        if (existPerson.number === newNumber) {
+          alert(existStr)
+        } else {
+          if (window.confirm(`${existStr}, replace the old number with the new one?`)) {
+
+            const newObj = {
+              ...existPerson,
+              number: newNumber
+            }
+
+            apiService.update(existPerson.id, newObj)
+              .then(data => {
+                console.log('update number: ', data)
+                setPersons(persons.map(v => v.id === data.id ? data : v))
+                setSearchResults(searchResults.map(v => v.id === data.id ? data : v))
+                setNewName('')
+                setNewNumber('')
+              })
+              .catch(err => {
+                console.log('update err: ', err)
+              })
+          }
+        }
       } else {
         const newPerson = {
           name: newName,
           number: newNumber
         }
-        console.log(newPerson)
-        setPersons(persons.concat(newPerson))
-        setNewName('')
-        setNewNumber('')
+
+        apiService.create(newPerson)
+          .then(data => {
+            console.log('add person success: ', data)
+            setPersons(persons.concat(data))
+
+            setNewName('')
+            setNewNumber('')
+          })
+          .catch(err => {
+            alert('create err')
+            console.log('add person err: ', err)
+          })
+
       }
+    }
+  }
+
+  const onClickDelete = (person) => {
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      apiService.deletePerson(person.id)
+        .then(data => {
+          console.log('deleted from server: ', data)
+          setPersons(persons.filter(v => v.id !== person.id))
+          setSearchResults(searchResults.filter(v => v.id !== person.id))
+        })
+        .catch(err => {
+          console.log('delete err: ', err)
+        })
     }
   }
 
@@ -74,7 +122,7 @@ const App = () => {
         onClickSubmit={clickSubmit}
       />
       <h3>Numbers</h3>
-      <Persons persons={(searchName.length > 0 ? searchResults : persons)} />
+      <Persons persons={(searchName.length > 0 ? searchResults : persons)} onClickDelete={onClickDelete} />
     </div>
   )
 }
