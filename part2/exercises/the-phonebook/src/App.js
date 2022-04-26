@@ -3,6 +3,7 @@ import Filter from './componets/Filter'
 import PersonForm from './componets/PersonForm'
 import Persons from './componets/Persons'
 import apiService from './services/Persons'
+import Notification from './componets/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -10,6 +11,10 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchName, setSearchName] = useState('')
+  const [msgObj, setMsgObj] = useState({
+    message: null,
+    color: 'green'
+  })
 
   useEffect(
     () => {
@@ -85,6 +90,16 @@ const App = () => {
 
             setNewName('')
             setNewNumber('')
+
+            setMsgObj({
+              message: `Added ${data.name}`,
+              color: 'green'
+            })
+
+            setTimeout(
+              () => setMsgObj({ message: null }),
+              5000
+            )
           })
           .catch(err => {
             alert('create err')
@@ -105,6 +120,24 @@ const App = () => {
         })
         .catch(err => {
           console.log('delete err: ', err)
+
+          if (404 === err.response.status) {
+            setMsgObj(
+              {
+                message: `Information of ${person.name} has already been removed from server`,
+                color: 'red'
+              }
+            )
+            setTimeout(
+              () => {
+                setMsgObj({ message: null })
+              },
+              5000
+            )
+
+            setPersons(persons.filter(v => v.name !== person.name))
+            setSearchResults(searchResults.filter(v => v.name !== person.name))
+          }
         })
     }
   }
@@ -112,6 +145,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification msgObj={msgObj} />
       <Filter value={searchName} onChange={inputSearchName} />
       <h3>add a new</h3>
       <PersonForm
